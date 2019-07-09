@@ -1,4 +1,4 @@
-function RegNet = PANDA(RegNet, GeneCoReg, TFCoop, alpha)
+function RegNet = PANDA(RegNet, GeneCoReg, TFCoop, alpha, respWeight)
 % Description:
 %              PANDA infers a gene regulatory network from gene expression
 %              data, motif prior, and PPI between transcription factors
@@ -24,7 +24,7 @@ function RegNet = PANDA(RegNet, GeneCoReg, TFCoop, alpha)
     while hamming > 0.001
         R = Tfunction(TFCoop, RegNet);
         A = Tfunction(RegNet, GeneCoReg);
-        W = (R + A) * 0.5;
+        W = respWeight*R + (1-respWeight)*A;
         hamming = mean(abs(RegNet(:) - W(:)));
         RegNet = (1 - alpha) * RegNet + alpha * W;
 

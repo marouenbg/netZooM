@@ -1,4 +1,4 @@
-function AgNet=panda_run(lib_path, exp_file, motif_file, ppi_file, panda_out, save_temp, alpha, save_pairs)
+function AgNet=panda_run(lib_path, exp_file, motif_file, ppi_file, panda_out, save_temp, alpha, save_pairs, respWeight)
 % Description:
 %               Using PANDA to infer gene regulatory network. 
 %               1. Reading in input data (expression data, motif prior, TF PPI data)
@@ -128,7 +128,7 @@ end
 clear Exp;  % Clean up Exp to release memory (for low-memory machine)
 
 disp('Running PANDA algorithm:');
-AgNet = PANDA(RegNet, GeneCoReg, TFCoop, alpha);
+AgNet = PANDA(RegNet, GeneCoReg, TFCoop, alpha, respWeight);
 
 %% ============================================================================
 %% Saving PANDA network output
