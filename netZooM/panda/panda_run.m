@@ -1,4 +1,4 @@
-function AgNet=panda_run(lib_path, exp_file, motif_file, ppi_file, panda_out, save_temp, alpha, save_pairs, RegNet, respWeight)
+function AgNet=panda_run(lib_path, exp_file, motif_file, ppi_file, panda_out, save_temp, alpha, save_pairs, RegNet, respWeight, absCoex)
 % Description:
 %               Using PANDA to infer gene regulatory network. 
 %               1. Reading in input data (expression data, motif prior, TF PPI data)
@@ -105,6 +105,9 @@ clear headings n TF gene TF1 TF2 weight;
 %% ============================================================================
 disp('Computing coexpression network:');
 tic; GeneCoReg = Coexpression(Exp); toc;
+if absCoex==1
+    GeneCoReg=abs(GeneCoReg);
+end
 
 disp('Normalizing Networks:');
 tic
