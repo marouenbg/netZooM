@@ -1,4 +1,4 @@
-function AgNet=panda_run(lib_path, exp_file, motif_file, ppi_file, panda_out, save_temp, alpha, save_pairs, respWeight)
+function AgNet=panda_run(lib_path, exp_file, motif_file, ppi_file, panda_out, save_temp, alpha, save_pairs, RegNet, respWeight)
 % Description:
 %               Using PANDA to infer gene regulatory network. 
 %               1. Reading in input data (expression data, motif prior, TF PPI data)
@@ -79,8 +79,8 @@ tic
     NumTFs = length(TFNames);
     [~,i] = ismember(TF, TFNames);
     [~,j] = ismember(gene, GeneNames);
-    RegNet = zeros(NumTFs, NumGenes);
-    RegNet(sub2ind([NumTFs, NumGenes], i, j)) = weight;
+    %RegNet = zeros(NumTFs, NumGenes);
+    %RegNet(sub2ind([NumTFs, NumGenes], i, j)) = weight;
     fprintf('%d TFs and %d edges!\n', NumTFs, length(weight));
 toc
 
