@@ -77,10 +77,10 @@ disp('Reading in motif data!');
 tic
     [TF, gene, weight] = textread(motif_file, '%s%s%f');
     TFNames = unique(TF);
-    NumTFs = length(TFNames);
-    [~,i] = ismember(TF, TFNames);
-    [~,j] = ismember(gene, GeneNames);
-    RegNet = zeros(NumTFs, NumGenes);
+    NumTFs  = length(TFNames);
+    [~,i]   = ismember(TF, TFNames);
+    [~,j]   = ismember(gene, GeneNames);
+    RegNet  = zeros(NumTFs, NumGenes);
     RegNet(sub2ind([NumTFs, NumGenes], i, j)) = weight;
     fprintf('%d TFs and %d edges!\n', NumTFs, length(weight));
 toc
