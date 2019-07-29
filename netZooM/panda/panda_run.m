@@ -59,16 +59,17 @@ addpath(lib_path);
 %% ============================================================================
 disp('Reading in expression data!');
 tic
-    fid = fopen(exp_file, 'r');
-    headings = fgetl(fid);
-    n = length(regexp(headings, '\t'));
-    frewind(fid);
+    %fid = fopen(exp_file, 'r');
+    %headings = fgetl(fid);
+    %n = length(regexp(headings, '\t'));
+    %frewind(fid);
     %Exp = textscan(fid, ['%s', repmat('%f', 1, n)], 'delimiter', '\t', 'CommentStyle', '#');
-    Exp = textscan(fid, ['%s', repmat('%f', 1, n)], 'delimiter', '\t'); % tiny speed-up by not checking for comments
-    fclose(fid);
-    GeneNames = Exp{1};
-    Exp = cat(2, Exp{2:end});
-    [NumGenes, NumConditions] = size(Exp);
+    %Exp = textscan(fid, ['%s', repmat('%f', 1, n)], 'delimiter', '\t'); % tiny speed-up by not checking for comments
+    %fclose(fid);
+    a=readtable(exp_file,'FileType','text');
+    Exp = a{:,2:end};
+    GeneNames = a{:,1};
+    [NumGenes, NumConditions] = size(a);
     fprintf('%d genes and %d conditions!\n', NumGenes, NumConditions);
     Exp = Exp';  % transpose expression matrix from gene-by-sample to sample-by-gene
 toc
@@ -80,6 +81,10 @@ tic
     NumTFs  = length(TFNames);
     [~,i]   = ismember(TF, TFNames);
     [~,j]   = ismember(gene, GeneNames);
+    commonInd = i&j;
+    i = i(commonInd);
+    j = j(commonInd);
+    weight = weight(commonInd);
     RegNet  = zeros(NumTFs, NumGenes);
     RegNet(sub2ind([NumTFs, NumGenes], i, j)) = weight;
     fprintf('%d TFs and %d edges!\n', NumTFs, length(weight));
