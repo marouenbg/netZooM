@@ -59,15 +59,16 @@ addpath(lib_path);
 %% ============================================================================
 disp('Reading in expression data!');
 tic
-    fid = fopen(exp_file, 'r');
-    headings = fgetl(fid);
-    n = length(regexp(headings, '\t'));
-    frewind(fid);
+    %fid = fopen(exp_file, 'r');
+    %headings = fgetl(fid);
+    %n = length(regexp(headings, '\t'));
+    %frewind(fid);
     %Exp = textscan(fid, ['%s', repmat('%f', 1, n)], 'delimiter', '\t', 'CommentStyle', '#');
-    Exp = textscan(fid, ['%s', repmat('%f', 1, n)], 'delimiter', '\t'); % tiny speed-up by not checking for comments
-    fclose(fid);
-    GeneNames = Exp{1};
-    Exp = cat(2, Exp{2:end});
+    %Exp = textscan(fid, ['%s', repmat('%f', 1, n)], 'delimiter', '\t'); % tiny speed-up by not checking for comments
+    %fclose(fid);
+    a=readtable(exp_file,'FileType','text');
+    Exp = a{:,2:end};
+    GeneNames = a{:,1};
     [NumGenes, NumConditions] = size(Exp);
     fprintf('%d genes and %d conditions!\n', NumGenes, NumConditions);
     Exp = Exp';  % transpose expression matrix from gene-by-sample to sample-by-gene
