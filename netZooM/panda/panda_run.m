@@ -74,32 +74,35 @@ tic
     Exp = Exp';  % transpose expression matrix from gene-by-sample to sample-by-gene
 toc
 
+disp('Reading in ppi data!');
+tic
+    b      = readtable(ppi_file,'FileType','text');
+    TFNames= unique(b.Var1);
+    NumTFs = length(TFNames);
+    TFCoop = zeros(NumTFs);
+    TF1    = b.Var1;
+    TF2    = b.Var2;
+    weight = b.Var3;
+    [~,i]  = ismember(TF1, TFNames);
+    [~,j]  = ismember(TF2, TFNames);
+    TFCoop(sub2ind([NumTFs, NumTFs], i, j)) = weight;
+    TFCoop(sub2ind([NumTFs, NumTFs], j, i)) = weight; 
+toc
+
 disp('Reading in motif data!');
 tic
     [TF, gene, weight] = textread(motif_file, '%s%s%f');
-    TFNames = unique(TF);
-    NumTFs  = length(TFNames);
     [~,i]   = ismember(TF, TFNames);
     [~,j]   = ismember(gene, GeneNames);
     RegNet  = zeros(NumTFs, NumGenes);
+    indComm = i&j;
+    i      = i(indComm);
+    j      = j(indComm);
+    weight = weight(indComm);
     RegNet(sub2ind([NumTFs, NumGenes], i, j)) = weight;
     fprintf('%d TFs and %d edges!\n', NumTFs, length(weight));
 toc
 
-disp('Reading in ppi data!');
-tic
-    TFCoop = eye(NumTFs);
-    if(~isempty(ppi_file))
-        [TF1, TF2, weight] = textread(ppi_file, '%s%s%f');
-        [~,i] = ismember(TF1, TFNames);
-        [~,j] = ismember(TF2, TFNames);
-        TFCoop(sub2ind([NumTFs, NumTFs], i, j)) = weight;
-        TFCoop(sub2ind([NumTFs, NumTFs], j, i)) = weight;
-        fprintf('%d PPIs!\n', length(weight));
-    end
-toc
-
- 
 % Clean up variables to release memory
 clear headings n TF gene TF1 TF2 weight;
 
