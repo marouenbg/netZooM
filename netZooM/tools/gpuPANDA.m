@@ -1,4 +1,4 @@
-function RegNet = gpuPANDA(RegNet, GeneCoReg, TFCoop, alpha, respWeight, similarityMetric,...
+function [RegNet,memVec] = gpuPANDA(RegNet, GeneCoReg, TFCoop, alpha, respWeight, similarityMetric,...
                 computing,precision,verbose,saveMemory)
 % Description:
 %              GPU-accelerated PANDA, slightly different implmentation that is 
@@ -113,6 +113,7 @@ function RegNet = gpuPANDA(RegNet, GeneCoReg, TFCoop, alpha, respWeight, similar
         RegNet   = gpuArray(RegNet);
         GeneCoReg= gpuArray(GeneCoReg);
     end
+    mem1=memory;
     while hamming > 0.001
         if isequal(similarityMetric,'Tfunction')
             R = Tfunction(TFCoop, RegNet);
@@ -134,11 +135,12 @@ function RegNet = gpuPANDA(RegNet, GeneCoReg, TFCoop, alpha, respWeight, similar
             clear R;prevDiag=diag(GeneCoReg);
             GeneCoReg=diagsquareform(GeneCoReg);
         end
-
+        mem2=memory;
         hamming = mean(abs(RegNet(:) - A(:)));
         RegNet = (1 - alpha) * RegNet + alpha * A;
 
         if hamming > 0.001
+            hamming=0.00001;
             if isequal(similarityMetric,'Tfunction')
                 A = Tfunction(RegNet);
             else
@@ -153,7 +155,7 @@ function RegNet = gpuPANDA(RegNet, GeneCoReg, TFCoop, alpha, respWeight, similar
             
             A = UpdateDiagonal(A, NumTFs, alpha, step);
             TFCoop = (1 - alpha) * TFCoop + alpha * A;%clear A;
-
+            mem3=memory;
             if isequal(similarityMetric,'Tfunction')
                 A = Tfunction(RegNet');
             else
@@ -187,6 +189,7 @@ function RegNet = gpuPANDA(RegNet, GeneCoReg, TFCoop, alpha, respWeight, similar
                 end
                 A = convertToSimilarity(A,similarityMetric);
             end
+            mem4=memory;
             A = UpdateDiagonal(A, NumGenes, alpha, step);
             if saveMemory==1
                 % update GeneCoReg
@@ -197,6 +200,7 @@ function RegNet = gpuPANDA(RegNet, GeneCoReg, TFCoop, alpha, respWeight, similar
                 GeneCoReg = squareform(GeneCoReg);
                 GeneCoReg(1:(NumGenes+1):end) = alpha * stdDiag + (1 - alpha) * prevDiag;
                 clear prevDiag; clear stdDiag;
+                mem5=memory;
             else
                 GeneCoReg = (1 - alpha) * GeneCoReg + alpha * A;
             end
@@ -204,9 +208,10 @@ function RegNet = gpuPANDA(RegNet, GeneCoReg, TFCoop, alpha, respWeight, similar
         if verbose==1
             disp(['Step#', num2str(step), ', hamming=', num2str(hamming)]);
         end
-        step = step + 1;
+        step = step + 1;mem6=memory;
     end
     runtime = toc;
+    memVec=[mem1,mem2,mem3,mem4,mem5,mem6];
     if isequal(computing,'gpu')
         RegNet=gather(RegNet);
     end
